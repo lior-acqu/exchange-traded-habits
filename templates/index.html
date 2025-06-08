@@ -26,7 +26,7 @@
                 <form action="/delete/{{ habit.id }}" method="post" style="display:inline;">
                     <button class="habit-action-button red">Delete Habit</button>
                 </form>
-                <canvas id="chart-{{ habit.id }}" width="200" height="100"></canvas>
+                <canvas id="chart-{{ habit.id }}" width="400" height="100"></canvas>
                 <p class="description">{{ habit.description }}</p>
             </div>
             {% endfor %}
@@ -150,8 +150,11 @@
             // Build total portfolio chart
             const sortedDates = Object.keys(dateValueMap).sort();
             const totalValues = sortedDates.map(date => dateValueMap[date]);
-            const totalChange = Math.sumPrecise(valueChanges) / sumOfInitialValues * 100;
-            console.log(Math.sumPrecise(valueChanges), sumOfInitialValues);
+            var totalChange = 0;
+            for (let i = 0; i < valueChanges.length; i++) {
+                totalChange += parseFloat(valueChanges[i]);
+            }
+            totalChange = totalChange / sumOfInitialValues * 100;
             
             // define a background color
             var stockBG = "#dfdfdf";

@@ -5,3 +5,4 @@ copy of app.py
 /stock-habit-tracker
 /__pycache__
 requirements.txt
+.vercel
