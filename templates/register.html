@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <h2 class="stock-title" style="margin-bottom: 30px;">Register</h2>
+    <form method="post">
+        <input type="text" name="username" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <input type="text" name="currency" placeholder="Currency (e.g. USD, you can also invent one)" required />
+        <button class="add-btn" type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+{% endblock %}

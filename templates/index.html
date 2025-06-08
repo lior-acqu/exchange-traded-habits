@@ -1,0 +1,220 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <a class="top right" href="{{ url_for('logout') }}">Logout</a>
+    <a class="top left" target="_blank" href="https://notion.so">Built for Notion</a>
+    <div class="container">
+        <div id="total-data">
+            <h1 class="stock-title">Total Habit Portfolio of {{ username }}</h1>
+            <p class="price">{{ currency }} {{ "%.2f"|format(0) }} ({{ "%.2f"|format(0) }}%)</p>
+            <canvas id="total-chart" width="400" height="100"></canvas>
+        </div>
+        <div class="habit-grid">
+            {% for habit in habits %}
+            <div class="habit-container">
+                <h1 class="stock-title">{{ habit.name }} ({{habit.short_name}})</h1>
+                <p class="price">{{ currency }} {{ "%.2f"|format(habit.current_value) }} ({{ "%.2f"|format(habit.change) }}%)</p>
+                <form action="/complete/{{ habit.id }}" method="post" style="display:inline;">
+                    <button class="habit-action-button">Done</button>
+                </form>
+                <form action="/miss/{{ habit.id }}" method="post" style="display:inline;">
+                    <button class="habit-action-button">Missed</button>
+                </form>
+                <form action="/yesterday/{{ habit.id }}" method="post" style="display:inline;">
+                    <button class="habit-action-button">Done Yesterday</button>
+                </form>
+                <form action="/delete/{{ habit.id }}" method="post" style="display:inline;">
+                    <button class="habit-action-button red">Delete Habit</button>
+                </form>
+                <canvas id="chart-{{ habit.id }}" width="200" height="100"></canvas>
+                <p class="description">{{ habit.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <h1 class="stock-title" style="margin-bottom: 30px;">Add Habit</h1>
+        <div class="habit-form">
+            <form action="/add" method="post">
+                <input type="text" name="name" placeholder="Habit Name" required>
+                <input id="time" oninput="changeDescription()" type="text" name="time" placeholder="I'll always complete the habit at ..." required>
+                <input id="identity" oninput="changeDescription()" type="text" name="identity" placeholder="By doing this habit, I'll become ..." required>
+                <input type="text" name="initValue" placeholder="How important is this habit to me? (1 - 100)" required>
+                <input id="interval" oninput="changeDescription()" type="text" name="days" placeholder="Repetition Interval (daily = 1)" required>
+                <p class="habit-statement">Every X day/s, I'll complete this habit at X to become X.</p>
+                <button class="add-btn" type="submit">Add Habit</button>
+            </form>
+        </div>
+        <div class="lior-container">
+            <p class="lior-info">Created by <a target="_blank" href="https://liorporath.ch">Lior</a> (<a target="_blank" href="https://github.com/lior-acqu">lior-acqu</a>), the creator of <a target="_blank" href="https://www.instagram.com/notesbylior/">@notesbylior</a> and the <a target="_blank" href="https://acquirable.ch">Acquirable</a> blog.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/index.js"></script>
+    <script>
+        const habitIds = [{% for habit in habits %}{{ habit.id }}, {% endfor %}];
+        const habitNames = [{% for habit in habits %}"{{ habit.short_name }}", {% endfor %}];
+        var valueChanges = []
+        var sumOfInitialValues = 0;
+
+        {% for habit in habits %}
+            valueChanges.push({{habit.current_value}} - {{habit.initial_value}});
+            sumOfInitialValues += {{ habit.initial_value }};
+        {% endfor %}
+
+        const habitDataMap = {};  // habit_id -> [{date, value}, ...]
+
+        // Helper: format date to YYYY-MM-DD
+        const formatDate = date => date.toISOString().split('T')[0];
+
+        Promise.all(habitIds.map(id =>
+            fetch(`/chart_data/${id}`).then(res => res.json())
+        )).then(allData => {
+            const dateValueMap = {};  // date -> total value
+
+            // Loop over each habit's data
+            allData.forEach((data, index) => {
+                const habitId = habitIds[index];
+                habitDataMap[habitId] = data;
+ 
+                // define a background color
+                var stockBG = "#dfdfdf";
+                if (valueChanges[index] > 0.01) {
+                    stockBG = "#78C2FF"
+                } else if (valueChanges[index] < -0.01) {
+                    stockBG = "#FF788E"
+                }
+
+                // Render individual chart
+                const ctx = document.getElementById(`chart-${habitId}`);
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.map(e => e.date.substring(0,6)),
+                        datasets: [{
+                            label: habitNames[index],
+                            data: data.map(e => e.value),
+                            borderColor: stockBG,
+                            fill: true,
+                            backgroundColor: stockBG + "22",
+                            tension: 0.3,
+                            pointBackgroundColor: stockBG,
+                            pointBorderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                        x: {
+                            grid: {
+                            color: '#ffffff05'
+                            },
+                            ticks: {
+                            font: {
+                                family: 'Roboto Mono'
+                            }
+                            }
+                        },
+                        y: {
+                            grid: {
+                            color: '#ffffff05'
+                            },
+                            ticks: {
+                            font: {
+                                family: 'Roboto Mono'
+                            }
+                            }
+                        }
+                        }
+                    }
+                });
+
+                // Aggregate into total per day
+                data.forEach(entry => {
+                    const date = entry.date.substring(0,6);
+                    const val = entry.value;
+
+                    if (!dateValueMap[date]) {
+                        dateValueMap[date] = 0;
+                    }
+                    dateValueMap[date] += val;
+                });
+
+            });
+
+
+            // Build total portfolio chart
+            const sortedDates = Object.keys(dateValueMap).sort();
+            const totalValues = sortedDates.map(date => dateValueMap[date]);
+            const totalChange = Math.sumPrecise(valueChanges) / sumOfInitialValues * 100;
+            console.log(Math.sumPrecise(valueChanges), sumOfInitialValues);
+            
+            // define a background color
+            var stockBG = "#dfdfdf";
+            if (totalChange > 0.01) {
+                stockBG = "#78C2FF"
+            } else if (totalChange < -0.01) {
+                stockBG = "#ff788e"
+            }
+
+            document.getElementById("total-data").innerHTML = "<h1 class='stock-title'>Total Habit Portfolio of {{ username }}</h1><p class='price'>{{ currency }} " + 
+            totalValues[totalValues.length - 1].toFixed(2)
+            + " (" + 
+            totalChange.toFixed(2)
+            + "%)</p><canvas id='total-chart' width='400' height='100'></canvas>"
+
+            const totalChartCanvas = document.getElementById("total-chart");
+            new Chart(totalChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{
+                        label: "Total Portfolio Value",
+                        data: totalValues,
+                        borderColor: stockBG,
+                        fill: true,
+                        backgroundColor: stockBG + "22",
+                        tension: 0.3,
+                        pointBackgroundColor: stockBG,
+                        pointBorderWidth: 0,
+                        min: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                    x: {
+                        grid: {
+                        color: '#ffffff05'
+                        },
+                        ticks: {
+                        font: {
+                            family: 'Roboto Mono'
+                        }
+                        }
+                    },
+                    y: {
+                        grid: {
+                        color: '#ffffff05'
+                        },
+                        ticks: {
+                        font: {
+                            family: 'Roboto Mono'
+                        }
+                        }
+                    }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

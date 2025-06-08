@@ -1,0 +1,7 @@
+.env
+habits.db
+copy of app.py
+/venv
+/stock-habit-tracker
+/__pycache__
+requirements.txt

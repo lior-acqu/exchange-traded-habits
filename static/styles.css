@@ -1,0 +1,148 @@
+* {
+  font-family: "Roboto Mono", monospace;
+  scroll-behavior: smooth;
+  font-feature-settings: "liga" 1, "clig" 1;
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  box-sizing: border-box;
+  letter-spacing: -3.5%;
+  color: white;
+  font-size: 17px;
+}
+body {
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #1f1f1f;
+}
+input {
+  background-color: transparent;
+  border: 1px solid #4b4b4b;
+  border-radius: 10px;
+  display: block;
+  width: 85vw;
+  padding: 20px 20px;
+  max-width: 800px;
+  margin-bottom: 10px;
+}
+.habit-statement {
+  background-color: transparent;
+  border: 1px solid #2b2b2b;
+  color: #c2c2c2;
+  font-style: italic;
+  border-radius: 10px;
+  display: block;
+  width: 85vw;
+  padding: 20px 20px;
+  max-width: 800px;
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+.add-btn {
+  width: 85vw;
+  padding: 20px 20px;
+  max-width: 800px;
+  background-color: #2b2b2b;
+  border: 1px solid #4b4b4b;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.add-btn:hover,
+.habit-action-button:hover {
+  background-color: #333333;
+}
+input:focus {
+  outline: none;
+  border: 1px solid white;
+}
+.habit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 0px 10px;
+  width: 100%;
+}
+.habit-container {
+  padding: 50px 10px;
+}
+.stock-title {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -5%;
+  margin-bottom: 5px;
+}
+.habit-action-button {
+  padding: 4px 15px;
+  background-color: #2b2b2b;
+  border: 1px solid #4b4b4b;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 0 10px 0;
+}
+canvas {
+  margin-top: 20px;
+}
+.price {
+  color: #cecece;
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+.description {
+  font-size: 16px;
+  font-style: italic;
+  color: #c2c2c2;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+#total-data {
+  width: 100%;
+}
+a {
+  text-decoration: none;
+  color: #c2c2c2;
+}
+.right {
+  position: absolute;
+  right: 20px;
+}
+.top {
+  position: absolute;
+  top: 20px;
+}
+.left {
+  position: absolute;
+  left: 20px;
+}
+.bottom {
+  position: absolute;
+  bottom: 20px;
+}
+.container {
+  width: 85%;
+  max-width: 1000px;
+  padding: 70px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.red {
+  background-color: #ff5d7855;
+  border-color: #ffa5b477;
+}
+.red:hover {
+  background-color: #ff5d7877;
+}
+.lior-container {
+  margin-top: 100px;
+  border-top: #4b4b4b 1px solid;
+  padding: 50px;
+}
+.lior-info {
+  font-style: italic;
+  text-align: center;
+}
