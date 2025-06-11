@@ -1,4 +1,5 @@
 .env
+.env.development.local
 habits.db
 copy of app.py
 /venv

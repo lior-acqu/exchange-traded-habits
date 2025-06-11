@@ -191,8 +191,8 @@ def complete_habit(habit_id):
                 habits = db.execute('SELECT * FROM habits').fetchall()
                 createMissingHabitLogs(habits)
             elif existing["completed"] != 1:
-                db.execute('UPDATE habit_logs SET completed = 1, value = value / (1 - (0.01 / %s)) * 1.01 WHERE habit_id = %s AND date = %s', (float(interval), habit_id, today))
-                db.execute('UPDATE habits SET current_value = current_value / (1 - (0.01 / %s)) * 1.01, change = (current_value * 101 / (1 - (0.01 / %s)) / initial_value) - 100 WHERE id = %s', (float(interval), float(interval), habit_id))
+                db.execute('UPDATE habit_logs SET completed = 1, value = value / 0.99 * 1.01 WHERE habit_id = %s AND date = %s', (habit_id, today))
+                db.execute('UPDATE habits SET current_value = current_value / 0.99 * 1.01, change = (current_value * 101 / 0.99) / initial_value) - 100 WHERE id = %s', (habit_id))
                 conn.commit()
             return redirect('/')
 
@@ -222,12 +222,11 @@ def complete_yesterday(habit_id):
                 createMissingHabitLogs(habits)
             else:
                 # change for today
-                db.execute('UPDATE habit_logs SET value = value / (1 - (0.01 / %s)) * 1.01 WHERE habit_id = %s AND date = %s', (float(interval), habit_id, today))
+                db.execute('UPDATE habit_logs SET value = value / 0.99) * 1.01 WHERE habit_id = %s AND date = %s', (habit_id, today))
                 # change the habit value
-                db.execute('UPDATE habits SET current_value = current_value / (1 - (0.01 / %s)) * 1.01, change = (current_value * 101 / (1 - (0.01 / %s)) / initial_value) - 100 WHERE id = %s', (float(interval), float(interval), habit_id))
+                db.execute('UPDATE habits SET current_value = current_value / 0.99) * 1.01, change = (current_value * 101 / 0.99) / initial_value) - 100 WHERE id = %s', (habit_id))
                 # change the entry for yesterday
-                db.execute('UPDATE habit_logs SET value = value / (1 - (0.01 / %s)) * 1.01, completed = 1 WHERE habit_id = %s AND date = %s', (float(interval), habit_id, yesterday))
-                # db.execute('UPDATE habits SET current_value = current_value / (1 - (0.01 / %s)) * 1.01, change = (current_value * 101 / (1 - (0.01 / %s)) / initial_value) - 100 WHERE id = %s', (float(interval), float(interval), habit_id))
+                db.execute('UPDATE habit_logs SET value = value / 0.99) * 1.01, completed = 1 WHERE habit_id = %s AND date = %s', (habit_id, yesterday))
             conn.commit()
             return redirect('/')
 
