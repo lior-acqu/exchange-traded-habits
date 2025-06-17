@@ -40,7 +40,7 @@ def create_short_name(name):
     return short_name
 
 
-def createMissingHabitLogs(habits):
+async def createMissingHabitLogs(habits):
     with get_db() as conn:
         with conn.cursor() as db:
             today = date.today().strftime("%d.%m.%Y")
@@ -50,7 +50,7 @@ def createMissingHabitLogs(habits):
                 if not interval:
                     interval = 1
                 else: interval = interval["interval"]
-                existing = db.execute('SELECT * FROM habit_logs WHERE habit_id=%s AND date=%s', (habit["id"], today)).fetchone()
+                existing = await db.execute('SELECT * FROM habit_logs WHERE habit_id=%s AND date=%s', (habit["id"], today)).fetchone()
                 if not existing:
                     db.execute('INSERT INTO habit_logs (habit_id, date, completed, value) VALUES (%s, %s, 0, %s)', (habit["id"], today, habit["current_value"] * (1 - (0.01 / float(interval)))))
                     db.execute('UPDATE habits SET current_value = current_value * (1 - (0.01 / %s)), change = (current_value * (100 - (1 / %s)) / initial_value) - 100 WHERE id = %s', (float(interval), float(interval), habit["id"]))
@@ -256,11 +256,14 @@ def miss_habit(habit_id):
 def chart_data(habit_id):
     with get_db() as conn:
         with conn.cursor() as db:
-            logs = db.execute('SELECT date, completed, value FROM habit_logs WHERE habit_id = %s ORDER BY date', (habit_id,)).fetchall()  
+            logs = db.execute('SELECT date, completed, value FROM habit_logs WHERE habit_id = %s ORDER BY id DESC', (habit_id,)).fetchall()  
             data = []
+            number_of_entries = 0
             for log in logs:
-                value = log["value"]
-                data.append({'date': log['date'], 'value': round(value, 2)})
+                if number_of_entries < 5:
+                    value = log["value"]
+                    data.append({'date': log['date'], 'value': round(value, 2)})
+                    number_of_entries += 1
 
             return jsonify(data)
 
