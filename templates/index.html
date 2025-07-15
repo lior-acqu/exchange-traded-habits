@@ -65,11 +65,11 @@
             
             // define a background color
             var stockBG = "#dfdfdf";
-            //if (totalChange > 0.01) {
-            //    stockBG = "#78C2FF"
-            //} else if (totalChange < -0.01) {
-            //    stockBG = "#ff788e"
-            //}
+            if (totalChange > 0.01) {
+                stockBG = "#78C2FF"
+            } else if (totalChange < -0.01) {
+                stockBG = "#ff788e"
+            }
             
             document.getElementById("total-data").innerHTML = "<h1 class='stock-title'>Total Habit Portfolio of {{ username }}</h1><p class='price'>{{ currency }} " + 
             totalValues[totalValues.length - 1].toFixed(2)

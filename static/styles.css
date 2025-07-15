@@ -66,7 +66,7 @@ input:focus {
   width: 100%;
 }
 .habit-container {
-  padding: 10px;
+  padding: 20px;
 }
 .stock-title {
   font-size: 26px;
@@ -80,7 +80,7 @@ input:focus {
   border: 1px solid #4b4b4b;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
   margin: 0 0 10px 0;
 }
 canvas {
@@ -90,13 +90,16 @@ canvas {
   color: #cecece;
   margin-top: 5px;
   margin-bottom: 20px;
+  font-size: 16px;
 }
 .description {
   font-size: 16px;
   font-style: italic;
   color: #c2c2c2;
-  margin-top: 20px;
+  margin-top: 15px;
   margin-bottom: 0;
+  line-height: 1.6;
+  text-align: justify;
 }
 #total-data {
   width: 100%;
