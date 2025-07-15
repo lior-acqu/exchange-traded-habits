@@ -40,20 +40,29 @@ def create_short_name(name):
     return short_name
 
 
-async def createMissingHabitLogs(habits):
+def createMissingHabitLogs(habits):
     with get_db() as conn:
         with conn.cursor() as db:
-            today = date.today().strftime("%d.%m.%Y")
+            today = date.today().strftime("%Y-%m-%d")
 
             for habit in habits:
-                interval = db.execute('SELECT interval FROM habits WHERE id = %s', (habit["id"],)).fetchone()
-                if not interval:
-                    interval = 1
-                else: interval = interval["interval"]
-                existing = await db.execute('SELECT * FROM habit_logs WHERE habit_id=%s AND date=%s', (habit["id"], today)).fetchone()
+                row = db.execute('SELECT interval FROM habits WHERE id = %s', (habit["id"],)).fetchone()
+                interval = row["interval"] if row else 1
+
+                existing = db.execute('SELECT * FROM habit_logs WHERE habit_id = %s AND date = %s', (habit["id"], today)).fetchone()
                 if not existing:
-                    db.execute('INSERT INTO habit_logs (habit_id, date, completed, value) VALUES (%s, %s, 0, %s)', (habit["id"], today, habit["current_value"] * (1 - (0.01 / float(interval)))))
-                    db.execute('UPDATE habits SET current_value = current_value * (1 - (0.01 / %s)), change = (current_value * (100 - (1 / %s)) / initial_value) - 100 WHERE id = %s', (float(interval), float(interval), habit["id"]))
+                    new_value = habit["current_value"] * (1 - (0.01 / float(interval)))
+                    db.execute(
+                        'INSERT INTO habit_logs (habit_id, date, completed, value) VALUES (%s, %s, 0, %s)',
+                        (habit["id"], today, new_value)
+                    )
+                    db.execute(
+                        '''UPDATE habits 
+                           SET current_value = current_value * (1 - (0.01 / %s)), 
+                               change = (current_value * (100 - (1 / %s)) / initial_value) - 100 
+                           WHERE id = %s''',
+                        (float(interval), float(interval), habit["id"])
+                    )
                     conn.commit()
 
 
@@ -63,9 +72,11 @@ def index():
         return redirect(url_for('login'))
     with get_db() as conn:
         with conn.cursor() as db:
+            # get logs (only needed for total habits)
+            total_logs = db.execute('SELECT hl.date AS date, SUM(hl.value) AS total_value FROM habit_logs hl JOIN habits h ON hl.habit_id = h.id WHERE h.user_id = %s GROUP BY hl.date ORDER BY hl.date;', (session["user_id"],)).fetchall()
             habits = db.execute('SELECT * FROM habits WHERE user_id = %s', (session["user_id"],)).fetchall()
             createMissingHabitLogs(habits)
-            return render_template('index.html', habits=habits, username=session["username"], currency=session["currency"])
+            return render_template('index.html', habits=habits, username=session["username"], currency=session["currency"], logs = total_logs)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -146,15 +157,15 @@ def add_habit():
             habit_id = habit_id["id"]
             # make the first habit log for the new habit using the habit_id and an initial log for the day before
             log_value = float(init_value) * (1 - (0.01 / interval))
-            today = date.today().strftime("%d.%m.%Y")
-            yesterday = (datetime.today() - timedelta(days=1)).strftime("%d.%m.%Y")
+            today = date.today().strftime("%Y-%m-%d")
+            yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
             db.execute('INSERT INTO habit_logs (habit_id, date, completed, value) VALUES (%s, %s, 0, %s)', (habit_id, today, log_value))
             db.execute('INSERT INTO habit_logs (habit_id, date, completed, value) VALUES (%s, %s, 1, %s)', (habit_id, yesterday, float(init_value)))
             # also create the habit logs for the prior days
             days_back = 2
             entry_found = True
             while entry_found:
-                check_date = (datetime.today() - timedelta(days=days_back)).strftime("%d.%m.%Y")
+                check_date = (datetime.today() - timedelta(days=days_back)).strftime("%Y-%m-%d")
                 days_back += 1
                 entry = db.execute("SELECT id FROM habit_logs WHERE date = %s", (check_date,)).fetchone()
                 if entry:
@@ -179,7 +190,7 @@ def delete_habit(habit_id):
 def complete_habit(habit_id):
     with get_db() as conn:
         with conn.cursor() as db:
-            today = date.today().strftime("%d.%m.%Y")
+            today = date.today().strftime("%Y-%m-%d")
             interval = db.execute('SELECT interval FROM habits WHERE id = %s', (habit_id,)).fetchone()
             if not interval:
                 interval = 1
@@ -201,8 +212,8 @@ def complete_habit(habit_id):
 def complete_yesterday(habit_id):
     with get_db() as conn:
         with conn.cursor() as db:
-            today = date.today().strftime("%d.%m.%Y")
-            yesterday = (datetime.today() - timedelta(days=1)).strftime("%d.%m.%Y")
+            today = date.today().strftime("%Y-%m-%d")
+            yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
             interval = db.execute('SELECT interval FROM habits WHERE id = %s', (habit_id,)).fetchone()
             if not interval:
                 interval = 1
@@ -235,7 +246,7 @@ def complete_yesterday(habit_id):
 def miss_habit(habit_id):
     with get_db() as conn:
         with conn.cursor() as db:
-            today = date.today().strftime("%d.%m.%Y")
+            today = date.today().strftime("%Y-%m-%d")
             interval = db.execute('SELECT interval FROM habits WHERE id = %s', (habit_id,)).fetchone()
             if not interval:
                 interval = 1
@@ -248,7 +259,7 @@ def miss_habit(habit_id):
                 createMissingHabitLogs(habits)
             elif existing["completed"] != 0:
                 db.execute('UPDATE habit_logs SET completed = 0, value = value * 0.99 / 1.01 WHERE habit_id = %s AND date = %s', (habit_id, today))
-                db.execute('UPDATE habits SET current_value = current_value * 0.99 / 1.01, change = (current_value / 1.01 * 0.99 / initial_value) - 100 WHERE id = %s', (habit_id,))
+                db.execute('UPDATE habits SET current_value = current_value * 0.99 / 1.01, change = (current_value / 1.01 * 99 / initial_value) - 100 WHERE id = %s', (habit_id,))
                 conn.commit()
             return redirect('/')
 
@@ -256,16 +267,25 @@ def miss_habit(habit_id):
 def chart_data(habit_id):
     with get_db() as conn:
         with conn.cursor() as db:
-            logs = db.execute('SELECT date, completed, value FROM habit_logs WHERE habit_id = %s ORDER BY id DESC', (habit_id,)).fetchall()  
-            data = []
-            number_of_entries = 0
-            for log in logs:
-                if number_of_entries < 5:
-                    value = log["value"]
-                    data.append({'date': log['date'], 'value': round(value, 2)})
-                    number_of_entries += 1
+            # get all relevant habit info
+            habits = db.execute('SELECT name, current_value, initial_value, change, description, short_name FROM habits ORDER BY date').fetchall()
+            # data = {"logs": total_logs, "habits": habits}
 
-            return jsonify(data)
+            """# could also be a for loop
+            number_of_entries = 0
+            while number_of_entries < 5:
+                value = logs[number_of_entries]["value"]
+                data.append({'date': logs[number_of_entries]['date'], 'value': round(value, 2)})
+                number_of_entries += 1
+            # flip list
+            data = list(reversed(data))
+            if data[0]["value"] > data[4]["value"]:
+                data.append("red")
+            elif data[0]["value"] < data[4]["value"]:
+                data.append("blue")
+            else: data.append("grey")"""
+
+            # return jsonify(data)
 
 
 if __name__ == '__main__':

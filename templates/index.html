@@ -26,7 +26,6 @@
                 <form action="/delete/{{ habit.id }}" method="post" style="display:inline;">
                     <button class="habit-action-button red">Delete Habit</button>
                 </form>
-                <canvas id="chart-{{ habit.id }}" width="400" height="100"></canvas>
                 <p class="description">{{ habit.description }}</p>
             </div>
             {% endfor %}
@@ -39,7 +38,7 @@
                 <input id="identity" oninput="changeDescription()" type="text" name="identity" placeholder="By doing this habit, I'll become ..." required>
                 <input type="text" name="initValue" placeholder="How important is this habit to me? (1 - 100)" required>
                 <input id="interval" oninput="changeDescription()" type="text" name="days" placeholder="Repetition Interval (daily = 1)" required>
-                <p class="habit-statement">Every X day/s, I'll complete this habit at X to become X.</p>
+                <p class="habit-statement">Every X day/s, I'll complete this habit when X to become X.</p>
                 <button class="add-btn" type="submit">Add Habit</button>
             </form>
         </div>
@@ -51,119 +50,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../static/index.js"></script>
     <script>
-        const habitIds = [{% for habit in habits %}{{ habit.id }}, {% endfor %}];
-        const habitNames = [{% for habit in habits %}"{{ habit.short_name }}", {% endfor %}];
-        var valueChanges = []
-        var sumOfInitialValues = 0;
+            var totalValues = [];
+            var totalDates = [];
 
-        {% for habit in habits %}
-            valueChanges.push({{habit.current_value}} - {{habit.initial_value}});
-            sumOfInitialValues += {{ habit.initial_value }};
-        {% endfor %}
+            const datalogs = {{ logs | tojson }};
 
-        const habitDataMap = {};  // habit_id -> [{date, value}, ...]
-
-        // Helper: format date to YYYY-MM-DD
-        const formatDate = date => date.toISOString().split('T')[0];
-
-        Promise.all(habitIds.map(id =>
-            fetch(`/chart_data/${id}`).then(res => res.json())
-        )).then(allData => {
-            const dateValueMap = {};  // date -> total value
-
-            // Loop over each habit's data
-            allData.forEach((data, index) => {
-                const habitId = habitIds[index];
-                habitDataMap[habitId] = data;
- 
-                // define a background color
-                var stockBG = "#dfdfdf";
-                if (valueChanges[index] > 0.01) {
-                    stockBG = "#78C2FF"
-                } else if (valueChanges[index] < -0.01) {
-                    stockBG = "#FF788E"
-                }
-
-                // Render individual chart
-                const ctx = document.getElementById(`chart-${habitId}`);
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.map(e => e.date.substring(0,6)),
-                        datasets: [{
-                            label: habitNames[index],
-                            data: data.map(e => e.value),
-                            borderColor: stockBG,
-                            fill: true,
-                            backgroundColor: stockBG + "22",
-                            tension: 0.3,
-                            pointBackgroundColor: stockBG,
-                            pointBorderWidth: 0,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                        x: {
-                            grid: {
-                            color: '#ffffff05'
-                            },
-                            ticks: {
-                            font: {
-                                family: 'Roboto Mono'
-                            }
-                            }
-                        },
-                        y: {
-                            grid: {
-                            color: '#ffffff05'
-                            },
-                            ticks: {
-                            font: {
-                                family: 'Roboto Mono'
-                            }
-                            }
-                        }
-                        }
-                    }
-                });
-
-                // Aggregate into total per day
-                data.forEach(entry => {
-                    const date = entry.date.substring(0,6);
-                    const val = entry.value;
-
-                    if (!dateValueMap[date]) {
-                        dateValueMap[date] = 0;
-                    }
-                    dateValueMap[date] += val;
-                });
-
-            });
-
+            for (let i = 0; i < datalogs.length; i++) {
+                totalValues.push(datalogs[i].total_value);
+                totalDates.push(datalogs[i].date.slice(5));
+            }
 
             // Build total portfolio chart
-            const sortedDates = Object.keys(dateValueMap).sort();
-            const totalValues = sortedDates.map(date => dateValueMap[date]);
-            var totalChange = 0;
-            for (let i = 0; i < valueChanges.length; i++) {
-                totalChange += parseFloat(valueChanges[i]);
-            }
-            totalChange = totalChange / sumOfInitialValues * 100;
+            var totalChange = (totalValues[totalValues.length - 1] / totalValues[0] * 100) - 100;
             
             // define a background color
             var stockBG = "#dfdfdf";
-            if (totalChange > 0.01) {
-                stockBG = "#78C2FF"
-            } else if (totalChange < -0.01) {
-                stockBG = "#ff788e"
-            }
-
+            //if (totalChange > 0.01) {
+            //    stockBG = "#78C2FF"
+            //} else if (totalChange < -0.01) {
+            //    stockBG = "#ff788e"
+            //}
+            
             document.getElementById("total-data").innerHTML = "<h1 class='stock-title'>Total Habit Portfolio of {{ username }}</h1><p class='price'>{{ currency }} " + 
             totalValues[totalValues.length - 1].toFixed(2)
             + " (" + 
@@ -174,7 +81,7 @@
             new Chart(totalChartCanvas, {
                 type: 'line',
                 data: {
-                    labels: sortedDates,
+                    labels: totalDates,
                     datasets: [{
                         label: "Total Portfolio Value",
                         data: totalValues,
@@ -218,6 +125,5 @@
                     }
                 }
             });
-        });
     </script>
 {% endblock %}

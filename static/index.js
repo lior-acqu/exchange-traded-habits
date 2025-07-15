@@ -12,7 +12,7 @@ function changeDescription() {
   document.querySelector(".habit-statement").innerHTML =
     "Every " +
     interval +
-    " day/s, I'll complete this habit at " +
+    " day/s, I'll complete this habit when " +
     time +
     " to become " +
     identity +
