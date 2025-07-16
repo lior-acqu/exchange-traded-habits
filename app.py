@@ -147,7 +147,7 @@ def add_habit():
     time = request.form["time"]
     identity = request.form["identity"]
     interval = int(request.form["days"])
-    description = f"Every {interval} day/s, I'll complete this habit at {time} to become {identity}."
+    description = f"Every {interval} day/s, I'll complete this habit when {time} to become {identity}."
     with get_db() as conn:
         with conn.cursor() as db:
             # insert the new habit into the habits table
