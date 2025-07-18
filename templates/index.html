@@ -23,6 +23,9 @@
                 <form action="/yesterday/{{ habit.id }}" method="post" style="display:inline;">
                     <button class="habit-action-button">Done Yesterday</button>
                 </form>
+                <form action="/edit/{{ habit.id }}" method="git" style="display:inline;">
+                    <button class="habit-action-button">Edit Habit</button>
+                </form>
                 <form action="/delete/{{ habit.id }}" method="post" style="display:inline;">
                     <button class="habit-action-button red">Delete Habit</button>
                 </form>

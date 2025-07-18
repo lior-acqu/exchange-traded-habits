@@ -19,7 +19,8 @@ body {
   justify-content: center;
   background-color: #1f1f1f;
 }
-input {
+input,
+textarea {
   background-color: transparent;
   border: 1px solid #4b4b4b;
   border-radius: 10px;
@@ -55,18 +56,19 @@ input {
 .habit-action-button:hover {
   background-color: #333333;
 }
-input:focus {
+input:focus,
+textarea:focus {
   outline: none;
   border: 1px solid white;
 }
 .habit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 0px 10px;
+  gap: 0px 50px;
   width: 100%;
 }
 .habit-container {
-  padding: 20px;
+  padding: 50px 10px;
 }
 .stock-title {
   font-size: 26px;

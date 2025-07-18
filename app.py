@@ -263,30 +263,43 @@ def miss_habit(habit_id):
                 conn.commit()
             return redirect('/')
 
-@app.route('/chart_data/<int:habit_id>')
-def chart_data(habit_id):
+@app.route("/edit/<int:habit_id>", methods=["GET", "POST"])
+def edit_habit(habit_id):
     with get_db() as conn:
         with conn.cursor() as db:
-            # get all relevant habit info
-            habits = db.execute('SELECT name, current_value, initial_value, change, description, short_name FROM habits ORDER BY date').fetchall()
-            # data = {"logs": total_logs, "habits": habits}
+            habit = db.execute("SELECT * FROM habits WHERE id = %s", (habit_id,)).fetchone()
 
-            """# could also be a for loop
-            number_of_entries = 0
-            while number_of_entries < 5:
-                value = logs[number_of_entries]["value"]
-                data.append({'date': logs[number_of_entries]['date'], 'value': round(value, 2)})
-                number_of_entries += 1
-            # flip list
-            data = list(reversed(data))
-            if data[0]["value"] > data[4]["value"]:
-                data.append("red")
-            elif data[0]["value"] < data[4]["value"]:
-                data.append("blue")
-            else: data.append("grey")"""
-
-            # return jsonify(data)
-
+            if not habit or habit["user_id"] != session.get("user_id"):
+                return "Habit not found or unauthorized", 403
+            
+            if request.method == "POST":
+                if not request.form["name"]:
+                    return "Please enter a name for the habit."
+                if not request.form["initial_value"] or float(request.form["initial_value"]) < 0 or float(request.form["initial_value"]) > 100:
+                    return "Please enter an start value from 1 to 100."
+                if not request.form["description"]:
+                    return "Please enter an actual description."
+                if not request.form["short_name"]:
+                    return "Please enter an actual short name."
+                name = request.form['name']
+                description = request.form["description"]
+                new_initial_value = float(request.form["initial_value"])
+                short_name = request.form["short_name"]
+                # update habits
+                db.execute("""
+                    UPDATE habits
+                    SET name = %s, description = %s, initial_value = %s, current_value = (current_value / initial_value * %s), short_name = %s
+                    WHERE id = %s
+                """, (name, description, new_initial_value, new_initial_value, short_name, habit_id))
+                # update habit logs
+                db.execute("""
+                    UPDATE habit_logs
+                    SET value = value / %s * %s
+                    WHERE habit_id = %s
+                """, (habit["initial_value"], new_initial_value, habit_id))
+                conn.commit()
+                return redirect('/')
+    return render_template("edit.html", habit=habit)
 
 if __name__ == '__main__':
     app.run()
