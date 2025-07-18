@@ -66,6 +66,7 @@ textarea:focus {
   grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
   gap: 0px 50px;
   width: 100%;
+  margin: 40px 0 50px 0;
 }
 .habit-container {
   padding: 50px 10px;
@@ -90,7 +91,7 @@ canvas {
 }
 .price {
   color: #cecece;
-  margin-top: 5px;
+  margin-top: 8px;
   margin-bottom: 20px;
   font-size: 16px;
 }
@@ -108,7 +109,7 @@ canvas {
 }
 a {
   text-decoration: none;
-  color: #c2c2c2;
+  color: hsl(0, 0%, 76%);
 }
 .right {
   position: absolute;
@@ -150,4 +151,19 @@ a {
 .lior-info {
   font-style: italic;
   text-align: center;
+}
+.price-red {
+  color: white;
+  font-size: 14px;
+  padding: 3px 10px;
+  background-color: #ff5d7855;
+  border-radius: 30px;
+}
+
+.price-blue {
+  color: white;
+  font-size: 14px;
+  padding: 3px 10px;
+  background-color: #5cb6ff55;
+  border-radius: 30px;
 }

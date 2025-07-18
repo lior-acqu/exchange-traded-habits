@@ -13,7 +13,7 @@
             {% for habit in habits %}
             <div class="habit-container">
                 <h1 class="stock-title">{{ habit.name }} ({{habit.short_name}})</h1>
-                <p class="price">{{ currency }} {{ "%.2f"|format(habit.current_value) }} ({{ "%.2f"|format(habit.change) }}%)</p>
+                <p class="price">{{ currency }} {{ "%.2f"|format(habit.current_value) }} <span class="{{ 'price-red' if habit.change < -0.01 else 'price-blue' if habit.change > 0.01 }}">{{ "%.2f"|format(habit.change) }}%</span></p>
                 <form action="/complete/{{ habit.id }}" method="post" style="display:inline;">
                     <button class="habit-action-button">Done</button>
                 </form>
