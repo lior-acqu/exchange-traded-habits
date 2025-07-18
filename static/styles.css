@@ -155,7 +155,7 @@ a {
 .price-red {
   color: white;
   font-size: 14px;
-  padding: 3px 10px;
+  padding: 3px 15px;
   background-color: #ff5d7855;
   border-radius: 30px;
 }
@@ -163,7 +163,7 @@ a {
 .price-blue {
   color: white;
   font-size: 14px;
-  padding: 3px 10px;
+  padding: 3px 15px;
   background-color: #5cb6ff55;
   border-radius: 30px;
 }
