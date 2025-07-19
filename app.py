@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 #from dotenv import load_dotenv only for development
 import os
 import psycopg
+import math
 from psycopg.rows import dict_row
 
 # oad_dotenv() only for development
@@ -133,8 +134,10 @@ def login():
 def add_habit():
     if not request.form["name"]:
         return "Please enter a name for the habit."
-    if not request.form["initValue"] or int(request.form["initValue"]) < 0 or int(request.form["initValue"]) > 100:
-        return "Please enter a number from 1 to 100."
+    if not request.form["importance"] or int(request.form["importance"]) < 1 or int(request.form["importance"]) > 10:
+        return "Please enter a level of importance from 1 to 10."
+    if not request.form["difficulty"] or int(request.form["difficulty"]) < 1 or int(request.form["difficulty"]) > 10:
+        return "Please enter a level of importance from 1 to 10."
     if not request.form["time"]:
         return "Please enter a time for the habit."
     if not request.form["identity"]:
@@ -142,11 +145,11 @@ def add_habit():
     if not request.form["days"]:
         return "Please enter a time interval for the habit."
     name = request.form['name']
-    init_value = int(request.form["initValue"])
     short_name = create_short_name(name)
     time = request.form["time"]
     identity = request.form["identity"]
-    interval = int(request.form["days"])
+    interval = float(request.form["days"])
+    init_value = int(request.form["importance"]) * int(request.form["difficulty"]) * (math.log(interval) + 1)
     description = f"Every {interval} day/s, I'll complete this habit when {time} to become {identity}."
     with get_db() as conn:
         with conn.cursor() as db:

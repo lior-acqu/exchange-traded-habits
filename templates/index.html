@@ -39,8 +39,9 @@
                 <input type="text" name="name" placeholder="Habit Name" required>
                 <input id="time" oninput="changeDescription()" type="text" name="time" placeholder="I'll always complete the habit at ..." required>
                 <input id="identity" oninput="changeDescription()" type="text" name="identity" placeholder="By doing this habit, I'll become ..." required>
-                <input type="text" name="initValue" placeholder="How important is this habit to me? (1 - 100)" required>
-                <input id="interval" oninput="changeDescription()" type="text" name="days" placeholder="Repetition Interval (daily = 1)" required>
+                <input title="This figure is used to calculate the value of the habit. Formula: Importance · Difficulty · ln(Interval)" type="text" name="importance" placeholder="How important is this habit to me? (1 - 10)" required>
+                <input title="This figure is used to calculate the value of the habit. Formula: Importance · Difficulty · ln(Interval)" type="text" name="difficulty" placeholder="How difficult has it been for me to make this habit stick? (1 - 10)" required>
+                <input title="This figure is used to calculate the value of the habit. Formula: Importance · Difficulty · ln(Interval)" id="interval" oninput="changeDescription()" type="text" name="days" placeholder="Repetition Interval (daily = 1)" required>
                 <p class="habit-statement">Every X day/s, I'll complete this habit when X to become X.</p>
                 <button class="add-btn" type="submit">Add Habit</button>
             </form>
