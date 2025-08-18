@@ -7,7 +7,7 @@
         <div id="total-data">
             <h1 class="stock-title">Total Habit Portfolio of {{ username }}</h1>
             <p class="price">{{ currency }} {{ "%.2f"|format(0) }} ({{ "%.2f"|format(0) }}%)</p>
-            <canvas id="total-chart" width="400" height="100"></canvas>
+            <canvas id="total-chart" width="250" height="100"></canvas>
         </div>
         <div class="habit-grid">
             {% for habit in habits %}
@@ -79,7 +79,7 @@
             totalValues[totalValues.length - 1].toFixed(2)
             + " (" + 
             totalChange.toFixed(2)
-            + "%)</p><canvas id='total-chart' width='400' height='100'></canvas>"
+            + "%)</p><canvas id='total-chart' width='250' height='100'></canvas>"
 
             const totalChartCanvas = document.getElementById("total-chart");
             new Chart(totalChartCanvas, {
