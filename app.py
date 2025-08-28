@@ -103,10 +103,12 @@ def register():
                     return "Username already taken.", 400
             return render_template('register.html')
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -129,6 +131,7 @@ def login():
                 else:
                     return "Invalid credentials.", 401
             return render_template('login.html')
+
 
 # adds a new habit with the corresponding habit logs
 @app.route('/add', methods=['POST'])
@@ -179,6 +182,7 @@ def add_habit():
             conn.commit()
             return redirect('/')
 
+
 # deletes a habit
 @app.route('/delete/<int:habit_id>', methods=['POST'])
 def delete_habit(habit_id):
@@ -210,6 +214,7 @@ def complete_habit(habit_id):
                 db.execute('UPDATE habits SET current_value = current_value / 0.99 * 1.01, change = (current_value * 101 / 0.99 / initial_value) - 100 WHERE id = %s', (habit_id,))
                 conn.commit()
             return redirect('/')
+
 
 # completes a habit and thus changes the prices
 @app.route('/yesterday/<int:habit_id>', methods=['POST'])
@@ -245,6 +250,7 @@ def complete_yesterday(habit_id):
             conn.commit()
             return redirect('/')
 
+
 # misses a habit if you accidentally set it to done
 @app.route('/miss/<int:habit_id>', methods=['POST'])
 def miss_habit(habit_id):
@@ -266,6 +272,7 @@ def miss_habit(habit_id):
                 db.execute('UPDATE habits SET current_value = current_value * 0.99 / 1.01, change = (current_value / 1.01 * 99 / initial_value) - 100 WHERE id = %s', (habit_id,))
                 conn.commit()
             return redirect('/')
+
 
 @app.route("/edit/<int:habit_id>", methods=["GET", "POST"])
 def edit_habit(habit_id):
@@ -304,6 +311,7 @@ def edit_habit(habit_id):
                 conn.commit()
                 return redirect('/')
     return render_template("edit.html", habit=habit)
+
 
 if __name__ == '__main__':
     app.run()
