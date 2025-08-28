@@ -15,10 +15,10 @@
                 <h1 class="stock-title">{{ habit.name }} ({{habit.short_name}})</h1>
                 <p class="price">{{ currency }} {{ "%.2f"|format(habit.current_value) }} <span class="{{ 'price-red' if habit.change < -0.01 else 'price-blue' if habit.change > 0.01 else 'price-grey' }}">{{ "%.2f"|format(habit.change) }}%</span></p>
                 <form action="/complete/{{ habit.id }}" method="post" style="display:inline;">
-                    <button class="habit-action-button">Done</button>
+                    <button style="border-color: {% if habit.completed == 1 %}white;" class="habit-action-button">Done</button>
                 </form>
                 <form action="/miss/{{ habit.id }}" method="post" style="display:inline;">
-                    <button class="habit-action-button">Missed</button>
+                    <button style="border-color: {% if habit.completed == 0 %}white;" class="habit-action-button">Missed</button>
                 </form>
                 <form action="/yesterday/{{ habit.id }}" method="post" style="display:inline;">
                     <button class="habit-action-button">Done Yesterday</button>

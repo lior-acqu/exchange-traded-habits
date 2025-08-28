@@ -73,9 +73,10 @@ def index():
         return redirect(url_for('login'))
     with get_db() as conn:
         with conn.cursor() as db:
+            today = date.today().strftime("%Y-%m-%d")
             # get logs (only needed for total habits)
             total_logs = db.execute('SELECT hl.date AS date, SUM(hl.value) AS total_value FROM habit_logs hl JOIN habits h ON hl.habit_id = h.id WHERE h.user_id = %s GROUP BY hl.date ORDER BY hl.date;', (session["user_id"],)).fetchall()
-            habits = db.execute('SELECT * FROM habits WHERE user_id = %s', (session["user_id"],)).fetchall()
+            habits = db.execute('SELECT h.*, hl.completed FROM habits h LEFT JOIN habit_logs hl ON h.id = hl.habit_id AND hl.date = %s WHERE user_id = %s', (today, session["user_id"])).fetchall()
             createMissingHabitLogs(habits)
             return render_template('index.html', habits=habits, username=session["username"], currency=session["currency"], logs = total_logs)
 
@@ -278,8 +279,8 @@ def edit_habit(habit_id):
             if request.method == "POST":
                 if not request.form["name"]:
                     return "Please enter a name for the habit."
-                if not request.form["initial_value"] or float(request.form["initial_value"]) < 0 or float(request.form["initial_value"]) > 100:
-                    return "Please enter an start value from 1 to 100."
+                if not request.form["initial_value"] or float(request.form["initial_value"]) < 0 or float(request.form["initial_value"]) > 1000:
+                    return "Please enter a start value from 1 to 1000."
                 if not request.form["description"]:
                     return "Please enter an actual description."
                 if not request.form["short_name"]:
