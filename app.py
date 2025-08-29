@@ -2,17 +2,15 @@ from flask import Flask, render_template, request, redirect, jsonify, session, u
 import sqlite3
 from datetime import date, timedelta ,datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-#from dotenv import load_dotenv only for development
 import os
 import psycopg
 import math
 from psycopg.rows import dict_row
 
-# oad_dotenv() only for development
+# AI DISCLAIMER: I HAVE USED CHATGPT AS AN ASSISTANT DURING MY CODING PROCESS. IT HAS HELPED ME CREATE SOME OF THE SYNTAX AND LOGIC IN THIS DOCUMENT'S FUNCTIONS, WHEREAS THE STRUCTURE AND MOST OF THE CODE IS HAND-WRITTEN. PRESUMABLY 10-20% OF THIS DOCUMENT IS WRITTEN BY AI.
 
 app = Flask(__name__)
 DB_PATH = 'habits.db'
-# app.secret_key = os.getenv('SECRET_KEY') only for development
 app.secret_key = os.environ.get('SECRET_KEY')
 app.permanent_session_lifetime = timedelta(days=30)
 
@@ -24,8 +22,6 @@ app.config.update(
 
 
 def get_db():
-    # conn = sqlite3.connect(DB_PATH)
-    # conn.row_factory = sqlite3.Row
     conn = psycopg.connect(os.environ["DATABASE_URL"], row_factory=dict_row)
     return conn
 
@@ -103,13 +99,13 @@ def register():
                     return "Username already taken.", 400
             return render_template('register.html')
 
-
+# logout
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-
+# login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     with get_db() as conn:
