@@ -57,7 +57,7 @@ The app allows users to create accounts, log in, and log out. All information is
 
 ###### Adding Habits
 
-Logged in, you can create habits. Each habit will be stored with a title, a short name (based on title), a description, a time interval (how often the habit is performed), and an initial value (formula: $importance * difficulty * ln(interval)$).
+Logged in, you can create habits. Each habit will be stored with a title, a short name (based on title), a description, a time interval (how often the habit is performed), and an initial value (formula: importance * difficulty * ln(interval)).
 
 ###### Habit-Tracking
 
