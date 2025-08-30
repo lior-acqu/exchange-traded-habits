@@ -1,6 +1,6 @@
 # Exchange-Traded Habits
-## Video Demo:  <URL HERE>
-## Description:
+#### Video Demo:  <URL HERE>
+#### Description:
 ### TL;DR
 
 Exchange-Traded Habits is a web-app built with Flask, HTML, CSS, JS, SQL, and Chart.js. It’s a habit tracker that treats every habit you have entered like an asset that increases in value if you perform the habit and decreases if you don’t.
