@@ -170,7 +170,12 @@ def add_habit():
             while entry_found:
                 check_date = (datetime.today() - timedelta(days=days_back)).strftime("%Y-%m-%d")
                 days_back += 1
-                entry = db.execute("SELECT id FROM habit_logs WHERE date = %s", (check_date,)).fetchone()
+                entry = db.execute("""
+                    SELECT hl.id 
+                    FROM habit_logs hl
+                    JOIN habits h ON hl.habit_id = h.id
+                    WHERE hl.date = %s AND h.user_id = %s
+                """, (check_date, session["user_id"])).fetchone()
                 if entry:
                     db.execute('INSERT INTO habit_logs (habit_id, date, completed, value) VALUES (%s, %s, 1, %s)', (habit_id, check_date, float(init_value)))
                 else:
