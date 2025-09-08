@@ -1,3 +1,6 @@
+/* AI DISCLAIMER: I HAVE USED CHATGPT AS AN ASSISTANT DURING MY CODING PROCESS. IT HAS HELPED ME CREATE SOME OF THE SYNTAX AND LOGIC IN THIS DOCUMENT'S FUNCTIONS, WHEREAS THE STRUCTURE AND MOST OF THE CODE IS HAND-WRITTEN. 0% OF THIS DOCUMENT IS WRITTEN BY AI. */
+
+
 * {
   font-family: "Roboto Mono", monospace;
   scroll-behavior: smooth;
@@ -175,3 +178,4 @@ a {
   background-color: hsla(207, 0%, 68%, 0.333);
   border-radius: 30px;
 }
+
