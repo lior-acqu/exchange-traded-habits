@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <!-- AI DISCLAIMER: I HAVE USED CHATGPT AS AN ASSISTANT DURING MY CODING PROCESS. IT HAS HELPED ME CREATE SOME OF THE SYNTAX AND LOGIC IN THIS DOCUMENT'S FUNCTIONS, WHEREAS THE STRUCTURE AND MOST OF THE CODE IS HAND-WRITTEN. PRESUMABLY 10% OF THIS DOCUMENT IS WRITTEN BY AI. -->
+    <a class="top right" href="{{ url_for('logout') }}">Logout</a>
+    <a class="top left" target="_blank" href="https://notion.so">Built for Notion</a>
+    <div class="container">
+        <div id="total-data">
+            <h1 class="stock-title">Total Habit Portfolio of {{ username }}</h1>
+            <p class="price">{{ currency }} {{ "%.2f"|format(0) }} ({{ "%.2f"|format(0) }}%)</p>
+            <canvas id="total-chart" width="250" height="100"></canvas>
+        </div>
+        <div class="habit-grid">
+            {% for habit in habits %}
+            <div class="habit-container">
+                <h1 class="stock-title">{{ habit.name }} ({{habit.short_name}})</h1>
+                <p class="price">{{ currency }} {{ "%.2f"|format(habit.current_value) }} <span class="{{ 'price-red' if habit.change < -0.01 else 'price-blue' if habit.change > 0.01 else 'price-grey' }}">{{ "%.2f"|format(habit.change) }}%</span></p>
+                <form action="/complete/{{ habit.id }}" method="post" style="display:inline;">
+                    <button style="border-color: {% if habit.completed == 1 %}white{% endif %};" class="habit-action-button">Done</button>
+                </form>
+                <form action="/miss/{{ habit.id }}" method="post" style="display:inline;">
+                    <button style="border-color: {% if habit.completed == 0 %}white{% endif %};" class="habit-action-button">Missed</button>
+                </form>
+                <form action="/yesterday/{{ habit.id }}" method="post" style="display:inline;">
+                    <button class="habit-action-button">Done Yesterday</button>
+                </form>
+                <form action="/edit/{{ habit.id }}" method="git" style="display:inline;">
+                    <button class="habit-action-button">Edit Habit</button>
+                </form>
+                <form action="/delete/{{ habit.id }}" method="post" style="display:inline;">
+                    <button class="habit-action-button red">Delete Habit</button>
+                </form>
+                <p class="description">{{ habit.description }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <h1 class="stock-title" style="margin-bottom: 30px;">Add Habit</h1>
+        <div class="habit-form">
+            <form action="/add" method="post">
+                <input type="text" name="name" placeholder="Habit Name" required>
+                <input id="time" oninput="changeDescription()" type="text" name="time" placeholder="I'll always complete the habit when ..." required>
+                <input id="identity" oninput="changeDescription()" type="text" name="identity" placeholder="By doing this habit, I'll become ..." required>
+                <input title="This figure is used to calculate the value of the habit. Formula: Importance · Difficulty · ln(Interval)" type="text" name="importance" placeholder="How important is this habit to me? (1 - 10)" required>
+                <input title="This figure is used to calculate the value of the habit. Formula: Importance · Difficulty · ln(Interval)" type="text" name="difficulty" placeholder="How difficult has it been for me to make this habit stick? (1 - 10)" required>
+                <input title="This figure is used to calculate the value of the habit. Formula: Importance · Difficulty · ln(Interval)" id="interval" oninput="changeDescription()" type="text" name="days" placeholder="Repetition Interval (daily = 1)" required>
+                <p class="habit-statement">Every X day/s, I'll complete this habit when X to become X.</p>
+                <button class="add-btn" type="submit">Add Habit</button>
+            </form>
+        </div>
+        <div class="lior-container">
+            <p class="lior-info">Created by <a target="_blank" href="https://liorporath.ch">Lior</a> (<a target="_blank" href="https://github.com/lior-acqu">lior-acqu</a>), the creator of <a target="_blank" href="https://www.instagram.com/notesbylior/">@notesbylior</a> and the <a target="_blank" href="https://acquirable.ch">Acquirable</a> blog.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/index.js"></script>
+    <script>
+            var totalValues = [];
+            var totalDates = [];
+
+            const datalogs = {{ logs | tojson }};
+
+            for (let i = 0; i < datalogs.length; i++) {
+                totalValues.push(datalogs[i].total_value);
+                totalDates.push(datalogs[i].date.slice(5));
+            }
+
+            // Build total portfolio chart
+            var totalChange = (totalValues[totalValues.length - 1] / totalValues[0] * 100) - 100;
+            
+            // define a background color
+            var stockBG = "#dfdfdf";
+            if (totalChange > 0.01) {
+                stockBG = "#78C2FF"
+            } else if (totalChange < -0.01) {
+                stockBG = "#ff788e"
+            }
+            
+            document.getElementById("total-data").innerHTML = "<h1 class='stock-title'>Total Habit Portfolio of {{ username }}</h1><p class='price'>{{ currency }} " + 
+            totalValues[totalValues.length - 1].toFixed(2)
+            + " (" + 
+            totalChange.toFixed(2)
+            + "%)</p><canvas id='total-chart' width='250' height='100'></canvas>"
+
+            const totalChartCanvas = document.getElementById("total-chart");
+            new Chart(totalChartCanvas, {
+                type: 'line',
+                data: {
+                    labels: totalDates,
+                    datasets: [{
+                        label: "Total Portfolio Value",
+                        data: totalValues,
+                        borderColor: stockBG,
+                        fill: true,
+                        backgroundColor: stockBG + "22",
+                        tension: 0.3,
+                        pointBackgroundColor: stockBG,
+                        pointBorderWidth: 0,
+                        min: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                    x: {
+                        grid: {
+                        color: '#ffffff05'
+                        },
+                        ticks: {
+                        font: {
+                            family: 'Roboto Mono'
+                        }
+                        }
+                    },
+                    y: {
+                        grid: {
+                        color: '#ffffff05'
+                        },
+                        ticks: {
+                        font: {
+                            family: 'Roboto Mono'
+                        }
+                        }
+                    }
+                    }
+                }
+            });
+    </script>
+{% endblock %}

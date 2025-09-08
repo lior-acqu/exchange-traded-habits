@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <!-- AI DISCLAIMER: I HAVE USED CHATGPT AS AN ASSISTANT DURING MY CODING PROCESS. IT HAS HELPED ME CREATE SOME OF THE SYNTAX AND LOGIC IN THIS DOCUMENT'S FUNCTIONS, WHEREAS THE STRUCTURE AND MOST OF THE CODE IS HAND-WRITTEN. PRESUMABLY 5% OF THIS DOCUMENT IS WRITTEN BY AI. -->
+    <a class="top left" target="_blank" href="/">Go Back</a>
+    <h1 class="stock-title" style="margin: 50px 0;">Edit Habit</h1>
+    <form method="POST">
+        <input type="text" name="name" id="name" placeholder="Habit Name" value="{{ habit.name }}" required>
+        <input type="text" name="short_name" id="short_name" value="{{ habit.short_name }}" placeholder="Short Name" required>
+        <input type="text" step="0.01" name="initial_value" id="initial_value" value="{{ habit.initial_value }}" placeholder="Start Value" required>
+        <textarea rows=3 cols=40 type="text" name="description" id="description" placeholder="Description" required>{{ habit.description }}</textarea>
+
+        <button class="add-btn" type="submit">Save Changes</button>
+    </form>
+{% endblock %}
