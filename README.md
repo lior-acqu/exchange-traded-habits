@@ -1,5 +1,5 @@
 # Exchange-Traded Habits
-#### Video Demo:  <URL HERE>
+#### Video Demo:  <[https://youtu.be/EH9-GZg9IHs](https://youtu.be/EH9-GZg9IHs)>
 #### Description:
 ### TL;DR
 
