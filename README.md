@@ -1,5 +1,5 @@
 # Exchange-Traded Habits
-#### Video Demo:  <[https://youtu.be/EH9-GZg9IHs](https://youtu.be/EH9-GZg9IHs)>
+#### Video Demo:  [https://youtu.be/EH9-GZg9IHs](https://youtu.be/EH9-GZg9IHs)
 #### Description:
 ### TL;DR
 
@@ -15,7 +15,7 @@ I believe that good habits are the key to a happy, healthy, and successful life.
 
 In “Atomic Habits”, the author James Clear describes habits as continuous improvements of 1%. This means that if your habits make you 1% better each day, you will make enormous improvements over a longer period, such as a year.
 
-The math is simple: If your current self is at 100% and you improve today by 1%, you will be at 101%. In two days, at 102.01%. After a year, you will have improved by a whopping 3778%! This is no magic, just 100% * $1.01^{365}$.
+The math is simple: If your current self is at level 100 and you improve today by 1%, you will be at level 101. In two days, at level 102.01. After a year, you will be at leel 3778! This is no magic, just 100 * $1.01^{365}$.
 
 This idea stuck with me. I loved how it sees habits as chances to improve yourself every day. It’s as if the quality of your life were an asset and increased in value when you perform a habit.
 
